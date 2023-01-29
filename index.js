@@ -116,6 +116,8 @@ On:          *${ghevent}*
 By:            *${ghactor}* 
         
 Tag:        ${process.env.GITHUB_REF}
+
+Message:    ${{ github.event.head_commit.message }}
         
 [Link to Repo ](https://github.com/${repo}/)
             `
