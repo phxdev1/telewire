@@ -1,5 +1,6 @@
 require("dotenv").config
-const Bot=require('node-telegram-bot-api');
+const core = require('@actions/core');
+const Bot = require('node-telegram-bot-api');
 const {
     INPUT_STATUS: ipstatus,
     INPUT_TOKEN: tgtoken,
@@ -12,116 +13,45 @@ const {
     INPUT_PR_STATE: prstate,
     INPUT_PR_TITLE: ptitle,
     INPUT_PR_BODY: pbody,
-    GITHUB_EVENT_NAME: ghevent,
+    INPUT_COMMIT_MESSAGE: commitMessage,
     GITHUB_REPOSITORY: repo,
     GITHUB_ACTOR: ghactor,
     GITHUB_SHA: sha,
     GITHUB_WORKFLOW: ghwrkflw
 } = process.env;
 
-const bot=new Bot(tgtoken)
+const bot = new Bot(tgtoken)
 
-const evresp = (gevent) => {
-    switch (gevent) {
+const evresp = () => {
 
-        case "issues":
-            return `
-❗️❗️❗️❗️❗️❗️
-        
-Issue ${prstate}
+    if (ipstatus == "success") {
 
-Issue Title and Number  : ${ititle} | #${inum}
+        return `
+Build Automation
+-------------------------
+*🟢 Build Succeeded*
 
-Commented or Created By : \`${iactor}\`
-
-Issue Body : *${ibody}*
-
-[Link to Issue](https://github.com/${repo}/issues/${inum})
-[Link to Repo ](https://github.com/${repo}/)
-[Build log here](https://github.com/${repo}/commit/${sha}/checks)`
-        case "issue_comment":
-            return `
-🗣🗣🗣🗣🗣🗣
-
-Issue ${prstate}
-
-Issue Title and Number  : ${ititle} | #${inum}
-
-Commented or Created By : \`${iactor}\`
-
-Issue Body : *${ibody}*
-
-Issue Comment: \`${process.env.INPUT_IU_COM}\`
-
-[Link to Issue](https://github.com/${repo}/issues/${inum})
-[Link to Repo ](https://github.com/${repo}/)
-[Build log here](https://github.com/${repo}/commit/${sha}/checks)
-            `
-        case "pull_request":
-            return `
-🔃🔀🔃🔀🔃🔀
-PR ${prstate} 
-        
-PR Number:      ${pnum}
-        
-PR Title:       ${ptitle}
-        
-PR Body:        *${pbody}*
-        
-PR By:          ${ghactor}
-        
-[Link to Issue](https://github.com/${repo}/pull/${pnum})
-[Link to Repo ](https://github.com/${repo}/)
-[Build log here](https://github.com/${repo}/commit/${sha}/checks)`
-        case "watch":
-            return `
-⭐️⭐️⭐️
-
-By:            *${ghactor}* 
-        
 \`Repository:  ${repo}\` 
-        
-Star Count      ${process.env.INPUT_STARGAZERS}
-        
-Fork Count      ${process.env.INPUT_FORKERS}
-        
-[Link to Repo ](https://github.com/${repo}/)
-            `
-        case "schedule":
-            return `
-⏱⏰⏱⏰⏱⏰
-        
-ID: ${ghwrkflw}
-        
-Run *${ipstatus}!*
-        
-*Action was Run on Schedule*
-        
-\`Repository:  ${repo}\` 
-        
-[Link to Repo ](https://github.com/${repo}/)
-            `
-        default:
-            return `
-⬆️⇅⬆️⇅
-            
-ID: ${ghwrkflw}
-        
-Action was a *${ipstatus}!*
-        
-\`Repository:  ${repo}\` 
-        
-On:          *${ghevent}*
         
 By:            *${ghactor}* 
-        
-Tag:        ${process.env.GITHUB_REF}
-
-Message:    ${{ github.event.head_commit.message }}
+Message:    ${commitMessage}
         
 [Link to Repo ](https://github.com/${repo}/)
-            `
-    }
+
+`} else {
+        return `
+Build Automation
+-------------------------
+*🔴 BUILD FAILED* 
+        
+\`Repository:  ${repo}\` 
+        
+By:            *${ghactor}* 
+Message:    ${commitMessage}
+        
+[Link to Repo ](https://github.com/${repo}/)
+`}
 }
-const output = evresp(ghevent)
-bot.sendMessage(chatid,output,{parse_mode : "Markdown"})
+
+const output = evresp()
+bot.sendMessage(chatid, output, { parse_mode: "Markdown" })

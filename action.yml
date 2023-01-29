@@ -44,6 +44,9 @@ inputs:
   pr_body:
     description: 'Body/Contents of the PR'
     default: ${{ github.event.pull_request.body }}
+  commit_message:
+    description: 'Commit message'
+    default: ${{ github.event.head_commit.message }}
 runs:
   using: "node12"
   main: "dist/index.js"
